@@ -10,6 +10,7 @@ from .serializers import *
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.middleware.csrf import get_token
+from django.middleware.csrf import get_token
 
 User = get_user_model()
 
@@ -74,7 +75,7 @@ class LoginView(APIView):
                 return sendErrorMessage('Wrong password')
         else:
             return sendErrorMessage('No user found for given email')
-        return sendResponse(serializer.data, 'User logged in')
+        return sendResponse(get_token(request), 'User logged in, fetched CSRF Token')
         #return Response(None, status=status.HTTP_202_ACCEPTED)
 
 
@@ -140,6 +141,19 @@ class UsersList(APIView):
         
 #-------------------------------------------------------------------------#
 
+# ----------------------- Consumption check function ---------------------#
+
+class ConsumptionCheck(APIView):
+    def get(self, request, format=None):
+        try:
+            current_user = request.user
+            serializer = UserSerializer(current_user)
+            last_login = serializer.data['last_login']
+            return sendResponse(last_login, 'last login of current user')
+        except Exception as e:
+            return sendErrorMessage(str(e))
+
 class CompleteInfo(APIView):
-    def post(self,request,format=None)
+    def post(self,request,format=None):
+        pass
         
