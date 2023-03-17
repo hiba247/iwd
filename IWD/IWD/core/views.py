@@ -138,6 +138,16 @@ class UsersList(APIView):
         except Exception as e:
             return sendErrorMessage(str(e))
         
+class UserDetails(APIView):
+    def get(self, request, id, format=None):
+        try:
+            user = User.objects.get(pk=id)
+            serializer = UserSerializer(user)
+            return sendResponse(serializer.data, f'User {user.id}')
+        except Exception as e:
+            return sendErrorMessage(str(e))
+    
+    
 class CompleteInfo(APIView):
     def post(self,request,format=None):
         print(request)
@@ -183,7 +193,7 @@ class AddEvent(APIView):
             return sendErrorMessage(str(e))
        
   
-class getevents(APIView):
+class GetEvents(APIView):
        def get(self, request, format=None):
         try:
             events = Event.objects.all()
@@ -202,6 +212,7 @@ class Reserver(APIView):
         serializer = EventSerializer(event, many=True)
         return sendResponse(serializer.data,'place reservé')
 
+# ----------------------- Comments views -------------------- #
 class Comments(APIView):
     def get(self, request, format=None):
         try:
@@ -222,5 +233,19 @@ class AddComment(APIView):
             new_comment.save()
             serializer = CommentSerializer(new_comment)
             return sendResponse(serializer.data, 'New event added')
+        except Exception as e:
+            return sendErrorMessage(str(e))
+        
+# ----------------------- Upvotes views ------------------------ #
+class Upvote(APIView):
+    def post(self, request, id):
+        try:
+            post = Post.objects.get(pk=id)
+            post.upvote_count += 1
+            post.save()
+            user = request.user
+            post.upvoters.add(user)
+            serializer = PostSerializer(post)
+            return sendResponse(serializer.data, 'Post liked')
         except Exception as e:
             return sendErrorMessage(str(e))

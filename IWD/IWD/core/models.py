@@ -54,7 +54,8 @@ class Post(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField()
     upvote_count = models.IntegerField(default=0)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    upvoters = models.ManyToManyField(User, related_name='upvoters')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user')
     
     def __str__(self):
         return f'Post titled: {self.title}'
@@ -73,7 +74,11 @@ class Event(models.Model):
     num_places=models.IntegerField()
     description = models.TextField()
     date = models.DateField()
-    users=models.ManyToManyField(User)
+    categorie = models.CharField(max_length=100)
+    users = models.ManyToManyField(User)
 
     def __str__(self):
         return f'Event: {self.description}'
+    
+class Formation(models.Model):
+    pass
