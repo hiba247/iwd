@@ -1,15 +1,12 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.views import APIView
-from .models import Post
+from .models import Post, Event
 from rest_framework import permissions
 from rest_framework import status,generics
 from rest_framework.response import Response
 from django.contrib.auth import login, logout, get_user_model
 from .serializers import *
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from django.middleware.csrf import get_token
 from django.middleware.csrf import get_token
 
 User = get_user_model()
@@ -157,3 +154,18 @@ class CompleteInfo(APIView):
     def post(self,request,format=None):
         pass
         
+
+# ------------------- Events views --------------------------#
+class AddEvent(APIView):
+    def post(self, request, format=None):
+        try:
+            price = request.POST.get('price')
+            place = request.POST.get('place')
+            num_places = int(request.POST.get('num_places'))
+            new_event = Event(price=price, place=place,
+                              num_places=num_places)
+            new_event.save()
+            serializer = EventSerializer(new_event)
+            return sendResponse(serializer.data, 'New event added')
+        except Exception as e:
+            return sendErrorMessage(str(e))

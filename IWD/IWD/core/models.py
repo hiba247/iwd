@@ -67,3 +67,6 @@ class Comment(models.Model):
     
     def __str__(self):
         return f'Comment:{self.content} made by {self.user}'
+    
+class Event(models.Model):
+    pass
