@@ -69,4 +69,12 @@ class Comment(models.Model):
         return f'Comment:{self.content} made by {self.user}'
     
 class Event(models.Model):
-    pass
+    price=models.FloatField()
+    place=models.CharField(max_length=200)
+    num_places=models.IntegerField()
+    description = models.TextField()
+    date = models.DateField()
+    users=models.ManyToManyField(User)
+
+    def __str__(self):
+        return f'Event: {self.description}'

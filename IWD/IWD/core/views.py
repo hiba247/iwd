@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.views import APIView
-from .models import Post, Event
+from .models import *
 from rest_framework import permissions
 from rest_framework import status,generics
 from rest_framework.response import Response
@@ -112,15 +112,15 @@ class CreatePost(APIView):
     context= request.POST  
     title=context.get("title")
     content=context.get("content")
-    userid=context.get("user") 
-    user=User.objects.get(id=userid)
+    print(request.user)
+    user=request.user 
+    #user=User.objects.get(id=userid)
     post =Post.objects.create(title=title,content=content,user=user)
 
     serilizer = PostSerializer(post)
     print(serilizer)
     return sendResponse(serilizer.data,'the post')
 
-    #title=request.data.get("title")
 # -------------------------------------------------------------------------#
 
 # ------------------------- User views ----------------------------------- #
@@ -136,6 +136,20 @@ class UsersList(APIView):
         except Exception as e:
             return sendErrorMessage(str(e))
         
+class CompleteInfo(APIView):
+    def post(self,request,format=None):
+        print(request)
+        context= request.POST  
+        first_name=context.get("first_name")
+        last_name=context.get("last_name")
+        gender=context.get("gender") 
+        usr=request.user 
+        addiction=context.get("addiction")
+        print(usr)
+        User.objects.filter(id=usr.id).update(first_name=first_name,last_name=last_name,gender=gender,addiction=addiction)
+        serilizer = UserSerializer(usr)
+        return sendResponse(serilizer.data,'the post')
+        
 #-------------------------------------------------------------------------#
 
 # ----------------------- Consumption check function ---------------------#
@@ -149,11 +163,7 @@ class ConsumptionCheck(APIView):
             return sendResponse(last_login, 'last login of current user')
         except Exception as e:
             return sendErrorMessage(str(e))
-
-class CompleteInfo(APIView):
-    def post(self,request,format=None):
-        pass
-        
+            
 
 # ------------------- Events views --------------------------#
 class AddEvent(APIView):
@@ -169,3 +179,23 @@ class AddEvent(APIView):
             return sendResponse(serializer.data, 'New event added')
         except Exception as e:
             return sendErrorMessage(str(e))
+       
+  
+class getevents(APIView):
+       def get(self, request, format=None):
+        try:
+            events = Event.objects.all()
+            serializer = EventSerializer(events, many=True)
+            return sendResponse(serializer.data, 'all events')
+        except Exception as e:
+            return sendErrorMessage(str(e))      
+
+class Reserver(APIView):
+    def post(self,request,slug,format=None):
+        event=Event.objects.get(pk=slug)
+        user=request.user
+        event.num_places=event.num_places-1
+        event.save()
+        event.users.add(user)
+        serializer = EventSerializer(event, many=True)
+        return sendResponse(serializer.data,'place reservé')
