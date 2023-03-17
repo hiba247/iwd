@@ -173,10 +173,9 @@ class AddEvent(APIView):
         try:
             price = request.POST.get('price')
             place = request.POST.get('place')
-
+            date=request.POST.get('date')
             num_places = int(request.POST.get('num_places'))
-            new_event = Event(price=price, place=place,
-                              num_places=num_places)
+            new_event = Event(price=price, place=place, num_places=num_places,date=date)
             new_event.save()
             serializer = EventSerializer(new_event)
             return sendResponse(serializer.data, 'New event added')
@@ -219,8 +218,7 @@ class AddComment(APIView):
             post=Post.objects.get(pk=slug)
 
             user=request.user
-            new_comment = Comment(content=content, user=user,
-                              post=post)
+            new_comment = Comment(content=content, user=user,post=post)
             new_comment.save()
             serializer = CommentSerializer(new_comment)
             return sendResponse(serializer.data, 'New event added')
