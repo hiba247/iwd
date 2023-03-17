@@ -23,11 +23,11 @@ class User(AbstractUser):
     age = models.IntegerField()
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=100)
-    anonymous = models.BooleanField()
+    anonymous = models.BooleanField(null=True)
     addiction = models.CharField(max_length=100)
-    premium = models.BooleanField(max_length=100)
+    premium = models.BooleanField()
     streak = models.IntegerField()
-    psychologist = models.ForeignKey(Psychologist, on_delete=models.CASCADE)
+    psychologist = models.ForeignKey(Psychologist, on_delete=models.CASCADE, null=True)
     
     def __str__(self):
         return f'User: {self.first_name} {self.last_name}'
