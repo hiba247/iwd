@@ -7,9 +7,6 @@ from rest_framework import status,generics
 from rest_framework.response import Response
 from django.contrib.auth import login, logout, get_user_model
 from .serializers import *
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from django.middleware.csrf import get_token
 from django.middleware.csrf import get_token
 
 User = get_user_model()
@@ -124,7 +121,6 @@ class CreatePost(APIView):
     print(serilizer)
     return sendResponse(serilizer.data,'the post')
 
-    #title=request.data.get("title")
 # -------------------------------------------------------------------------#
 
 # ------------------------- User views ----------------------------------- #
@@ -140,6 +136,20 @@ class UsersList(APIView):
         except Exception as e:
             return sendErrorMessage(str(e))
         
+class CompleteInfo(APIView):
+    def post(self,request,format=None):
+        print(request)
+        context= request.POST  
+        first_name=context.get("first_name")
+        last_name=context.get("last_name")
+        gender=context.get("gender") 
+        usr=request.user 
+        addiction=context.get("addiction")
+        print(usr)
+        User.objects.filter(id=usr.id).update(first_name=first_name,last_name=last_name,gender=gender,addiction=addiction)
+        serilizer = UserSerializer(usr)
+        return sendResponse(serilizer.data,'the post')
+        
 #-------------------------------------------------------------------------#
 
 # ----------------------- Consumption check function ---------------------#
@@ -153,21 +163,23 @@ class ConsumptionCheck(APIView):
             return sendResponse(last_login, 'last login of current user')
         except Exception as e:
             return sendErrorMessage(str(e))
+            
 
-class CompleteInfo(APIView):
-    def post(self,request,format=None):
-       print(request)
-       context= request.POST  
-       first_name=context.get("first_name")
-       last_name=context.get("last_name")
-       gender=context.get("gender") 
-       usr=request.user 
-       addiction=context.get("addiction")
-       print(usr)
-       User.objects.filter(id=usr.id).update(first_name=first_name,last_name=last_name,gender=gender,addiction=addiction)
-       serilizer = UserSerializer(usr)
-       #print(serilizer)
-       return sendResponse(serilizer.data,'the post')
+# ------------------- Events views --------------------------#
+class AddEvent(APIView):
+    def post(self, request, format=None):
+        try:
+            price = request.POST.get('price')
+            place = request.POST.get('place')
+            num_places = int(request.POST.get('num_places'))
+            new_event = Event(price=price, place=place,
+                              num_places=num_places)
+            new_event.save()
+            serializer = EventSerializer(new_event)
+            return sendResponse(serializer.data, 'New event added')
+        except Exception as e:
+            return sendErrorMessage(str(e))
+       
   
 class getevents(APIView):
        def get(self, request, format=None):

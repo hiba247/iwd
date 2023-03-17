@@ -6,8 +6,8 @@ urlpatterns = [
     path('users/', views.UsersList.as_view()),
     path('last_login/', views.ConsumptionCheck.as_view()),
    # path('articles/', scrapper.scrapper()),
-    path('createpost/', views.CreatePost.as_view()),  
-    path('completeinfo/', views.CompleteInfo.as_view()),
+    path('create_post/', views.CreatePost.as_view()),  
+    path('complet_einfo/', views.CompleteInfo.as_view()),
     path('events/<slug:slug>', views.getevents.as_view()),
 
 ]
