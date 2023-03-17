@@ -74,7 +74,11 @@ class Event(models.Model):
     num_places=models.IntegerField()
     description = models.TextField()
     date = models.DateField()
-    users=models.ManyToManyField(User)
+    categorie = models.CharField()
+    users = models.ManyToManyField(User)
 
     def __str__(self):
         return f'Event: {self.description}'
+    
+class Formation(models.Model):
+    pass

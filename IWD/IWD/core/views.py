@@ -181,7 +181,7 @@ class AddEvent(APIView):
             return sendErrorMessage(str(e))
        
   
-class getevents(APIView):
+class GetEvents(APIView):
        def get(self, request, format=None):
         try:
             events = Event.objects.all()
@@ -199,3 +199,5 @@ class Reserver(APIView):
         event.users.add(user)
         serializer = EventSerializer(event, many=True)
         return sendResponse(serializer.data,'place reservé')
+
+# ---------------- 
