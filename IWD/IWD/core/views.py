@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.views import APIView
-from .models import Post
+from .models import *
 from rest_framework import permissions
 from rest_framework import status,generics
 from rest_framework.response import Response
@@ -9,6 +9,7 @@ from django.contrib.auth import login, logout, get_user_model
 from .serializers import *
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.middleware.csrf import get_token
 from django.middleware.csrf import get_token
 
 User = get_user_model()
@@ -74,7 +75,7 @@ class LoginView(APIView):
                 return sendErrorMessage('Wrong password')
         else:
             return sendErrorMessage('No user found for given email')
-        return sendResponse(serializer.data, 'User logged in')
+        return sendResponse(get_token(request), 'User logged in, fetched CSRF Token')
         #return Response(None, status=status.HTTP_202_ACCEPTED)
 
 
@@ -141,17 +142,48 @@ class UsersList(APIView):
         
 #-------------------------------------------------------------------------#
 
+# ----------------------- Consumption check function ---------------------#
+
+class ConsumptionCheck(APIView):
+    def get(self, request, format=None):
+        try:
+            current_user = request.user
+            serializer = UserSerializer(current_user)
+            last_login = serializer.data['last_login']
+            return sendResponse(last_login, 'last login of current user')
+        except Exception as e:
+            return sendErrorMessage(str(e))
+
 class CompleteInfo(APIView):
     def post(self,request,format=None):
+       print(request)
        context= request.POST  
        first_name=context.get("first_name")
        last_name=context.get("last_name")
        gender=context.get("gender") 
-       user=User.objects.get(id=userid)
-       post =Post.objects.create(title=title,content=content,user=user)
-
-       serilizer = PostSerializer(post)
-       print(serilizer)
+       usr=request.user 
+       addiction=context.get("addiction")
+       print(usr)
+       User.objects.filter(id=usr.id).update(first_name=first_name,last_name=last_name,gender=gender,addiction=addiction)
+       serilizer = UserSerializer(usr)
+       #print(serilizer)
        return sendResponse(serilizer.data,'the post')
   
-        
+class getevents(APIView):
+       def get(self, request, format=None):
+        try:
+            events = Event.objects.all()
+            serializer = EventSerializer(events, many=True)
+            return sendResponse(serializer.data, 'all events')
+        except Exception as e:
+            return sendErrorMessage(str(e))      
+
+class Reserver(APIView):
+    def post(self,request,slug,format=None):
+        event=Event.objects.get(pk=slug)
+        user=request.user
+        event.num_places=event.num_places-1
+        event.save()
+        event.users.add(user)
+        serializer = EventSerializer(event, many=True)
+        return sendResponse(serializer.data,'place reservé')

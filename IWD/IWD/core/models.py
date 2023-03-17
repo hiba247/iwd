@@ -67,3 +67,9 @@ class Comment(models.Model):
     
     def __str__(self):
         return f'Comment:{self.content} made by {self.user}'
+    
+class Event(models.Model):
+    price=models.FloatField()
+    place=models.CharField(max_length=200)
+    num_places=models.IntegerField()
+    users=models.ManyToManyField(User)
