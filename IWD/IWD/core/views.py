@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from django.contrib.auth import login, logout, get_user_model
 from .serializers import *
 from django.middleware.csrf import get_token
+from django.core.paginator import Paginator
+
 
 User = get_user_model()
 
@@ -136,6 +138,16 @@ class UsersList(APIView):
         except Exception as e:
             return sendErrorMessage(str(e))
         
+class UserDetails(APIView):
+    def get(self, request, id, format=None):
+        try:
+            user = User.objects.get(pk=id)
+            serializer = UserSerializer(user)
+            return sendResponse(serializer.data, f'User {user.id}')
+        except Exception as e:
+            return sendErrorMessage(str(e))
+    
+    
 class CompleteInfo(APIView):
     def post(self,request,format=None):
         print(request)
@@ -171,9 +183,9 @@ class AddEvent(APIView):
         try:
             price = request.POST.get('price')
             place = request.POST.get('place')
+            date=request.POST.get('date')
             num_places = int(request.POST.get('num_places'))
-            new_event = Event(price=price, place=place,
-                              num_places=num_places)
+            new_event = Event(price=price, place=place, num_places=num_places,date=date)
             new_event.save()
             serializer = EventSerializer(new_event)
             return sendResponse(serializer.data, 'New event added')
@@ -200,4 +212,40 @@ class Reserver(APIView):
         serializer = EventSerializer(event, many=True)
         return sendResponse(serializer.data,'place reservé')
 
-# ---------------- 
+# ----------------------- Comments views -------------------- #
+class Comments(APIView):
+    def get(self, request, format=None):
+        try:
+            comments = Comment.objects.all()
+            serializer = CommentSerializer(comments, many=True)
+            return sendResponse(serializer.data, 'all comments')
+        except Exception as e:
+            return sendErrorMessage(str(e))      
+
+class AddComment(APIView):
+    def post(self, request, slug,format=None):
+        try:
+            content = request.POST.get('content')
+            post=Post.objects.get(pk=slug)
+
+            user=request.user
+            new_comment = Comment(content=content, user=user,post=post)
+            new_comment.save()
+            serializer = CommentSerializer(new_comment)
+            return sendResponse(serializer.data, 'New event added')
+        except Exception as e:
+            return sendErrorMessage(str(e))
+        
+# ----------------------- Upvotes views ------------------------ #
+class Upvote(APIView):
+    def post(self, request, id):
+        try:
+            post = Post.objects.get(pk=id)
+            post.upvote_count += 1
+            post.save()
+            user = request.user
+            post.upvoters.add(user)
+            serializer = PostSerializer(post)
+            return sendResponse(serializer.data, 'Post liked')
+        except Exception as e:
+            return sendErrorMessage(str(e))
