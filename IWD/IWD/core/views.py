@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from django.contrib.auth import login, logout, get_user_model
 from .serializers import *
 from django.middleware.csrf import get_token
+from django.core.paginator import Paginator
+
 
 User = get_user_model()
 
@@ -171,6 +173,7 @@ class AddEvent(APIView):
         try:
             price = request.POST.get('price')
             place = request.POST.get('place')
+
             num_places = int(request.POST.get('num_places'))
             new_event = Event(price=price, place=place,
                               num_places=num_places)
@@ -199,3 +202,27 @@ class Reserver(APIView):
         event.users.add(user)
         serializer = EventSerializer(event, many=True)
         return sendResponse(serializer.data,'place reservé')
+
+class Comments(APIView):
+    def get(self, request, format=None):
+        try:
+            comments = Comment.objects.all()
+            serializer = CommentSerializer(comments, many=True)
+            return sendResponse(serializer.data, 'all comments')
+        except Exception as e:
+            return sendErrorMessage(str(e))      
+
+class AddComment(APIView):
+    def post(self, request, slug,format=None):
+        try:
+            content = request.POST.get('content')
+            post=Post.objects.get(pk=slug)
+
+            user=request.user
+            new_comment = Comment(content=content, user=user,
+                              post=post)
+            new_comment.save()
+            serializer = CommentSerializer(new_comment)
+            return sendResponse(serializer.data, 'New event added')
+        except Exception as e:
+            return sendErrorMessage(str(e))

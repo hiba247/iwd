@@ -8,6 +8,10 @@ urlpatterns = [
    # path('articles/', scrapper.scrapper()),
     path('create_post/', views.CreatePost.as_view()),  
     path('complet_einfo/', views.CompleteInfo.as_view()),
-    path('events/<slug:slug>', views.getevents.as_view()),
+   # path('events/<slug:slug>', views.getevents.as_view()),
+   path('addevent/',views.AddEvent.as_view()),
+    path('events/', views.getevents.as_view()),
+    path('events/<slug:slug>/reserver', views.getevents.as_view()),
+
 
 ]

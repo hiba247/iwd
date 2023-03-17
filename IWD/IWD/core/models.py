@@ -64,7 +64,6 @@ class Comment(models.Model):
     content = models.CharField(max_length=100)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    
     def __str__(self):
         return f'Comment:{self.content} made by {self.user}'
     
