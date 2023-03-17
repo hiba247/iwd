@@ -3,23 +3,23 @@ from django.db import models
 # Create your models here.
 
 class Psychologist(models.Model):
-    first_name = models.CharField()
-    last_name = models.CharField()
-    phone_number = models.CharField()
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    phone_number = models.CharField(max_length=100)
     email = models.EmailField()
     
     def __str__(self):
         return f'Psychologist: {self.first_name} {self.last_name}'
     
 class User(models.Model):
-    first_name = models.CharField()
-    last_name = models.CharField()
-    gender = models.CharField()
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    gender = models.CharField(max_length=100)
     age = models.IntegerField()
     email = models.EmailField()
     anonymous = models.BooleanField()
-    addiction = models.CharField()
-    premium = models.CharField()
+    addiction = models.CharField(max_length=100)
+    premium = models.CharField(max_length=100)
     streak = models.IntegerField()
     psychologist = models.ForeignKey(Psychologist, on_delete=models.CASCADE)
     
@@ -46,8 +46,9 @@ class Habit(models.Model):
     
     
 class Post(models.Model):
-    title = models.CharField()
+    title = models.CharField(max_length=100)
     content = models.TextField()
+    upvote_count = models.IntegerField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     
     def __str__(self):
@@ -55,7 +56,7 @@ class Post(models.Model):
     
     
 class Comment(models.Model):
-    content = models.CharField()
+    content = models.CharField(max_length=100)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     
