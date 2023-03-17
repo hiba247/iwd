@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.views import APIView
-from .models import Post, User
+from .models import Post
 from rest_framework import permissions
-from rest_framework import views,status,generics
+from rest_framework import status,generics
 from rest_framework.response import Response
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, get_user_model
 from .serializers import *
+User = get_user_model()
 
 def sendResponse(data, message):
     res = {
@@ -23,7 +24,11 @@ def sendErrorMessage(message):
     }
     return JsonResponse(res, safe=False)
 
-class LoginView(views.APIView):
+# ------------------------- auth views --------------------------- #
+class RegisterView():
+    pass
+
+class LoginView(APIView):
     # This view should be accessible also for unauthenticated users.
     permission_classes = (permissions.AllowAny,)
 
@@ -42,12 +47,12 @@ class ProfileView(generics.RetrieveAPIView):
         return self.request.user
 
 
-class LogoutView(views.APIView):
+class LogoutView(APIView):
 
     def post(self, request, format=None):
         logout(request)
         return Response(None, status=status.HTTP_204_NO_CONTENT)
-
+#-------------------------------------------------------------------------#
 
 # --------------------------- Post views ---------------------------------#
 class PostsList(APIView):

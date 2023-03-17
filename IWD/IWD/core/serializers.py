@@ -1,5 +1,4 @@
 from django.contrib.auth import authenticate
-
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Post
@@ -11,8 +10,8 @@ class LoginSerializer(serializers.Serializer):
       * password.
     It will try to authenticate the user with when validated.
     """
-    username = serializers.CharField(
-        label="Username",
+    email = serializers.CharField(
+        label="Email",
         write_only=True
     )
     password = serializers.CharField(
@@ -25,13 +24,13 @@ class LoginSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         # Take username and password from request
-        username = attrs.get('username')
-        password = attrs.get('password')
+        username = attrs.get('email')
+        email = attrs.get('password')
 
-        if username and password:
+        if username and email:
             # Try to authenticate the user using Django auth framework.
             user = authenticate(request=self.context.get('request'),
-                                username=username, password=password)
+                                username=username, email=email)
             if not user:
                 # If we don't have a regular user, raise a ValidationError
                 msg = 'Access denied: wrong username or password.'
@@ -44,8 +43,8 @@ class LoginSerializer(serializers.Serializer):
         attrs['user'] = user
         return attrs
     
+    
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = '__all__'
