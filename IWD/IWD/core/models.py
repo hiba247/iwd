@@ -15,7 +15,6 @@ class Psychologist(models.Model):
 class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
-    
     username=None
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
@@ -54,7 +53,7 @@ class Habit(models.Model):
 class Post(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField()
-    upvote_count = models.IntegerField()
+    upvote_count = models.IntegerField(default=0)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     
     def __str__(self):

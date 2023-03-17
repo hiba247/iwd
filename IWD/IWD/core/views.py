@@ -97,6 +97,7 @@ class LogoutView(APIView):
 #-------------------------------------------------------------------------#
 
 # --------------------------- Post views ---------------------------------#
+
 class PostsList(APIView):
     """
     get all posts
@@ -110,10 +111,19 @@ class PostsList(APIView):
             return sendErrorMessage(str(e))
         
 class CreatePost(APIView):
-    """"
-    create new post
-    """
-    pass
+   def post(self,request,format=None):
+    context= request.POST  
+    title=context.get("title")
+    content=context.get("content")
+    userid=context.get("user") 
+    user=User.objects.get(id=userid)
+    post =Post.objects.create(title=title,content=content,user=user)
+
+    serilizer = PostSerializer(post)
+    print(serilizer)
+    return sendResponse(serilizer.data,'the post')
+
+    #title=request.data.get("title")
 # -------------------------------------------------------------------------#
 
 # ------------------------- User views ----------------------------------- #
@@ -142,3 +152,8 @@ class ConsumptionCheck(APIView):
             return sendResponse(last_login, 'last login of current user')
         except Exception as e:
             return sendErrorMessage(str(e))
+
+class CompleteInfo(APIView):
+    def post(self,request,format=None):
+        pass
+        
