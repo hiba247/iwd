@@ -114,8 +114,9 @@ class CreatePost(APIView):
     context= request.POST  
     title=context.get("title")
     content=context.get("content")
-    userid=context.get("user") 
-    user=User.objects.get(id=userid)
+    print(request.user)
+    user=request.user 
+    #user=User.objects.get(id=userid)
     post =Post.objects.create(title=title,content=content,user=user)
 
     serilizer = PostSerializer(post)
@@ -141,5 +142,16 @@ class UsersList(APIView):
 #-------------------------------------------------------------------------#
 
 class CompleteInfo(APIView):
-    def post(self,request,format=None)
+    def post(self,request,format=None):
+       context= request.POST  
+       first_name=context.get("first_name")
+       last_name=context.get("last_name")
+       gender=context.get("gender") 
+       user=User.objects.get(id=userid)
+       post =Post.objects.create(title=title,content=content,user=user)
+
+       serilizer = PostSerializer(post)
+       print(serilizer)
+       return sendResponse(serilizer.data,'the post')
+  
         
