@@ -7,6 +7,7 @@ from rest_framework import views,status,generics
 from rest_framework.response import Response
 from django.contrib.auth import login, logout
 from .serializers import *
+from django.views.decorators.csrf import csrf_exempt
 
 def sendResponse(data, message):
     res = {
@@ -33,7 +34,7 @@ class LoginView(views.APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         login(request, user)
-        return Response(None, status=status.HTTP_202_ACCEPTED)
+        return sendResponse(None, status=status.HTTP_202_ACCEPTED)
 
 class ProfileView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
@@ -46,10 +47,11 @@ class LogoutView(views.APIView):
 
     def post(self, request, format=None):
         logout(request)
-        return Response(None, status=status.HTTP_204_NO_CONTENT)
+        return sendResponse(None, status=status.HTTP_204_NO_CONTENT)
 
 
 # --------------------------- Post views ---------------------------------#
+
 class PostsList(APIView):
     """
     get all posts
@@ -63,10 +65,13 @@ class PostsList(APIView):
             return sendErrorMessage(str(e))
         
 class CreatePost(APIView):
-    """"
-    create new post
-    """
-    pass
+   def post(self,request,format=None):
+    serializer = PostSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(user=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
 # -------------------------------------------------------------------------#
 
 # ------------------------- User views ----------------------------------- #

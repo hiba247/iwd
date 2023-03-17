@@ -12,6 +12,7 @@ class Psychologist(models.Model):
         return f'Psychologist: {self.first_name} {self.last_name}'
     
 class User(models.Model):
+    id =models.AutoField(primary_key=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     gender = models.CharField(max_length=100)
@@ -48,7 +49,7 @@ class Habit(models.Model):
 class Post(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField()
-    upvote_count = models.IntegerField()
+    upvote_count = models.IntegerField(default=0)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     
     def __str__(self):
