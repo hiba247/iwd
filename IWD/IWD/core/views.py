@@ -1,20 +1,18 @@
-from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from .models import *
 from rest_framework import permissions
-from rest_framework import status,generics
-from rest_framework.response import Response
 from django.contrib.auth import login, logout, get_user_model
 from .serializers import *
 from django.middleware.csrf import get_token
-from django.core.paginator import Paginator
-from .scrapper import WebScraper
 
 User = get_user_model()
 
 
 # ---------------------------- Base functions --------------------------- #
+"""
+A function used to return data in JSON format with a success boolean and an additional message, used for successful requests
+"""
 def sendResponse(data, message):
     res = {
         'success': True,
@@ -23,6 +21,9 @@ def sendResponse(data, message):
     }
     return JsonResponse(res, safe=False)
 
+"""
+A function used to return a JSON response with a success boolean and a message, used for unsuccessful requests
+"""
 def sendErrorMessage(message):
     res = {
         'success': False,
@@ -35,7 +36,9 @@ def sendErrorMessage(message):
 
 
 # --------------------------------- Auth views ------------------------------------- #
-
+"""
+A class-based view used to register users to the website based on email, age and password fields
+"""
 class RegisterView(APIView):
     
     permission_classes = (permissions.AllowAny,)
@@ -62,6 +65,10 @@ class RegisterView(APIView):
             return sendErrorMessage(str(e))
         
 
+"""
+A class-based view used by users to login to the website based on email and password fields
+the login is used by setting a user-specific session variable with the built-in login() function
+"""
 class LoginView(APIView):
     
     permission_classes = (permissions.AllowAny,)
@@ -81,6 +88,10 @@ class LoginView(APIView):
         return sendResponse(get_token(request), 'User logged in, fetched CSRF Token')
 
 
+"""
+A class-based view used to logout users from the website
+It uses the logout() built-in function to unset the session variable
+"""
 class LogoutView(APIView):
     def post(self, request, format=None):
         logout(request)
@@ -92,10 +103,10 @@ class LogoutView(APIView):
 
 # ------------------------------------ Post views ------------------------------------#
 
+"""
+A class-based view used to get all posts
+"""
 class PostsList(APIView):
-    """
-    get all posts
-    """
     def get(self, request, format=None):
         try:
             posts = Post.objects.all()
@@ -105,6 +116,9 @@ class PostsList(APIView):
             return sendErrorMessage(str(e))
 
 
+"""
+A class-based view used to get the details of a specific post
+"""
 class PostDetails(APIView):
     def get(self, request, id, format=None):
         try:
@@ -115,7 +129,9 @@ class PostDetails(APIView):
             return sendErrorMessage(str(e))
          
             
-        
+"""
+A class-based view used to create a post
+"""
 class CreatePost(APIView):
    def post(self,request,format=None):
     context= request.POST  
@@ -137,10 +153,11 @@ class CreatePost(APIView):
 
 
 # ------------------------- User views ----------------------------------- #
+
+"""
+A class-based view used to get all users
+"""
 class UsersList(APIView):
-    """
-    get all users
-    """
     def get(self, request, format=None):
         try:
             users = User.objects.all()
@@ -149,6 +166,9 @@ class UsersList(APIView):
         except Exception as e:
             return sendErrorMessage(str(e))
         
+"""
+A class-based view used to get all the details of a specific user
+"""
 class UserDetails(APIView):
     def get(self, request, id, format=None):
         try:
@@ -158,7 +178,9 @@ class UserDetails(APIView):
         except Exception as e:
             return sendErrorMessage(str(e))
     
-    
+"""
+A class-based view used by users to complete entering their data after the registration
+"""
 class CompleteInfo(APIView):
     def post(self,request,format=None):
         context= request.POST  
@@ -180,6 +202,10 @@ class CompleteInfo(APIView):
 
 # ------------------------- Consumption check function -------------------------#
 
+"""
+A class-based view used to get the last time the current user logged in
+This view is used as a tool for the following one
+"""
 class StreakCheck(APIView):
     def get(self, request, format=None):
         try:
@@ -189,7 +215,10 @@ class StreakCheck(APIView):
             return sendResponse(last_login, 'last login of current user')
         except Exception as e:
             return sendErrorMessage(str(e))
-        
+
+"""
+A class-based view used to update the streak attribute of the user (either increment it or reset it to 0)
+"""        
 class StreakUpdate(APIView):
     def post(self, request, format=None):
         try:
@@ -213,6 +242,10 @@ class StreakUpdate(APIView):
 
 
 # ------------------------------ Events views ---------------------------------#
+
+"""
+A class-based view used by the admin to add an event
+"""
 class AddEvent(APIView):
     def post(self, request, format=None):
         try:
@@ -227,16 +260,33 @@ class AddEvent(APIView):
         except Exception as e:
             return sendErrorMessage(str(e))
        
-  
+"""
+A class-based view used to get all the events
+"""
 class GetEvents(APIView):
        def get(self, request, format=None):
         try:
             events = Event.objects.all()
             serializer = EventSerializer(events, many=True)
-            return sendResponse(serializer.data, 'all events')
+            return sendResponse(serializer.data, 'All events')
         except Exception as e:
             return sendErrorMessage(str(e))      
 
+"""
+A class-based view used to get details of a specific event
+"""
+class EventDetails(APIView):
+    def get(self, request, id, format=None):
+        try:
+            event = Event.objects.get(pk=id)
+            serializer = EventSerializer(event)
+            return sendResponse(serializer.data, f'Event {event.description}')
+        except Exception as e:
+            return sendErrorMessage(str(e))
+    
+"""
+A class-based view used by the user to make a reservation for an event
+"""   
 class Reserver(APIView):
     def post(self,request,slug,format=None):
         event=Event.objects.get(pk=slug)
@@ -255,6 +305,9 @@ class Reserver(APIView):
 
 # ----------------------- Comments views -------------------- #
 
+"""
+A class-based view used to retrieve all comments
+"""
 class Comments(APIView):
     def get(self, request, format=None):
         try:
@@ -264,17 +317,20 @@ class Comments(APIView):
         except Exception as e:
             return sendErrorMessage(str(e))      
 
+"""
+A class-based view used by a user to add a comment
+"""
 class AddComment(APIView):
-    def post(self, request, slug,format=None):
+    def post(self, request, id,format=None):
         try:
             content = request.POST.get('content')
-            post=Post.objects.get(pk=slug)
+            post=Post.objects.get(pk=id)
 
             user=request.user
             new_comment = Comment(content=content, user=user,post=post)
             new_comment.save()
             serializer = CommentSerializer(new_comment)
-            return sendResponse(serializer.data, 'New event added')
+            return sendResponse(serializer.data, 'New comment added')
         except Exception as e:
             return sendErrorMessage(str(e))
 # ------------------------------------------------------------------------- #
@@ -285,6 +341,10 @@ class AddComment(APIView):
 
         
 # ---------------------------- Upvotes views ---------------------------- #
+
+"""
+A class-based view used by a user to upvote (or remove an upvote to) a post
+"""
 class Upvote(APIView):
     def post(self, request, id):
         try:
@@ -310,6 +370,9 @@ class Upvote(APIView):
 
 # ---------------------------- Psychologist views ------------------------------ #
 
+"""
+A class-based view used to register a new psychologist to the website
+"""
 class PsychologistRegister(APIView):
     permission_classes = (permissions.AllowAny,)
     
@@ -334,7 +397,9 @@ class PsychologistRegister(APIView):
         except Exception as e:
             return sendErrorMessage(str(e))
         
-
+"""
+A class-based view used to login a psychologist to the website
+"""
 class PsychologistLogin(APIView):
     
     permission_classes = (permissions.AllowAny,)
@@ -353,7 +418,9 @@ class PsychologistLogin(APIView):
             return sendErrorMessage('No user found for given email')
         return sendResponse(get_token(request), 'User logged in, fetched CSRF Token')
     
-
+"""
+A class-based view used to retrieve all psychologists
+"""
 class PsychologistList(APIView):
     def get(self, request):
         try:
@@ -370,6 +437,9 @@ class PsychologistList(APIView):
         
 # ---------------------------- myProgress views ------------------------ #
 
+"""
+A class-based view used by the user to upgrade his account to premium (boolean premium = True)
+"""
 class BecomePremium(APIView):
     def post(self, request, format=None):
         try:
@@ -387,7 +457,9 @@ class BecomePremium(APIView):
         except Exception as e:
             return sendErrorMessage(str(e))
         
-        
+"""
+A class-based view used to retrieve all tasks of a specific user
+""" 
 class TasksList(APIView):
     def get(self, request):
         try:
@@ -399,6 +471,10 @@ class TasksList(APIView):
             return sendErrorMessage(str(e))
     
 
+"""
+A class-based view used by a premium user to submit his done tasks that were assigned to him by his psychologist
+and calculating the progress based on the goal of the task
+"""
 class SubmitTask(APIView):
     def post(self, request, format=None):
         try:
@@ -425,6 +501,9 @@ class SubmitTask(APIView):
         
 # --------------------------- Admin views -------------------------- #
 
+"""
+A class-based view used to retrieve all articles
+"""
 class ArticlesView(APIView):
     def get(self, request):
         try:
@@ -434,7 +513,10 @@ class ArticlesView(APIView):
         except Exception as e:
             return sendErrorMessage(str(e))
         
-        
+
+"""
+A class-based view used by the admin to add an article
+"""
 class AddArticle(APIView):
     def post(self, request):
         try:
@@ -458,6 +540,10 @@ class AddArticle(APIView):
 
 
 #-------------------------- Psychologist views -----------------------#
+
+"""
+A class-based view used by a psychologist to add tasks to one of his patients
+"""
 class AddTask(APIView):
     def post(self, request):
         try:
