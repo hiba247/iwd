@@ -38,7 +38,7 @@ git clone https://github.com/hiba247/iwd
 
 ### 2. Create a virtual environment
 
-From the **root** directory (same one as the project) run:
+From the **root** directory run:
 
 ```bash
 python -m venv venv
