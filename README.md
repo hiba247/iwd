@@ -83,9 +83,15 @@ Preferably, since it's only a back-end, you should use it with postman or django
 ## Order of routes
 
 The database is empty as of now, so I advise you to start with the following endpoits so you can populate the database, and then access the other endpoints:
-http://127.0.0.1:8000/register/    # To create user instances
-http://127.0.0.1:8000/create_post/   # To create post instance, requires an authenticated user session
-http://127.0.0.1:8000/post/<int:id>/add_comment/   # To create a comment, requires an authenticated user session and a post
-http://127.0.0.1:8000/psychologist/register/   # To create a psychologist instance
-http://127.0.0.1:8000/create_post/add_article/    # To create an article instance, requires an authenticated user
-http://127.0.0.1:8000/create_post/add_event/    # To create an event instance, requires an authenticated user
+
+http://127.0.0.1:8000/register/    : To create user instances
+
+http://127.0.0.1:8000/create_post/   : To create post instance, requires an authenticated user session
+
+http://127.0.0.1:8000/post/<int:id>/add_comment/   : To create a comment, requires an authenticated user session and a post
+
+http://127.0.0.1:8000/psychologist/register/   : To create a psychologist instance
+
+http://127.0.0.1:8000/create_post/add_article/    : To create an article instance, requires an authenticated user
+
+http://127.0.0.1:8000/create_post/add_event/    : To create an event instance, requires an authenticated user
