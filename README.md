@@ -7,7 +7,7 @@ This is the back-end of a the website FreeCovery built using **Django 4**. It is
 
 
 ## Table of Contents 
-- [Code structure_(#code-structure)
+- [Code structure](#code-structure)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Run the application](#run-the-application)
