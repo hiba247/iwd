@@ -23,3 +23,13 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'     
+        
+class PsychologistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Psychologist
+        fields = '__all__'
+        
+class FormationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Formation
+        fields = '__all__'
