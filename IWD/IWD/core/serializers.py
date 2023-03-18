@@ -33,3 +33,13 @@ class FormationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Formation
         fields = '__all__'
+        
+class TaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = '__all__'
+
+class ArticleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Article
+        fields = '__all__'
