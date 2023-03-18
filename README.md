@@ -15,9 +15,12 @@ This is the back-end of a the website FreeCovery built using **Django 4**. It is
 
 ## Code Structure
 
-The code is structured as follows:
+The code is structured as follows (in the iwd/IWD/IWD/core folder):
 
-- 
+- The endpoints are at **urls.py**
+- The views are at **views.py**
+- The models are at **models.py**
+- The serializers are at **serializers.py**
 
 ## Prerequisites
 
