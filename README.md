@@ -67,7 +67,7 @@ pip install -r requirements.txt
 
 ### 5. Run migrations
 
-Make sure your current location looks something like **<your source>\iwd\IWD\IWD** and run the following commands:
+Make sure your current location looks something like **root\iwd\IWD\IWD** and run the following commands:
 
 ```bash
 python manage.py makemigrations
