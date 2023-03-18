@@ -2,16 +2,35 @@ from django.urls import path
 from core import views
 
 urlpatterns = [
-    path('posts/', views.PostsList.as_view()),
     path('users/', views.UsersList.as_view()),
-    path('last_login/', views.ConsumptionCheck.as_view()),
-   # path('articles/', scrapper.scrapper()),
-    path('create_post/', views.CreatePost.as_view()),  
+    path('users/<int:id>/', views.UserDetails.as_view()),
+    path('last_login/', views.StreakCheck.as_view()),
     path('complete_info/', views.CompleteInfo.as_view()),
-   # path('events/<slug:slug>', views.getevents.as_view()),
+    path('streak_update/', views.StreakUpdate.as_view())
+]
+
+urlpatterns += [
+    path('posts/', views.PostsList.as_view()),
+    path('create_post/', views.CreatePost.as_view()),
+    path('posts/<int:id>/', views.PostDetails.as_view()),
+    path('post/<int:id>/upvote/', views.Upvote.as_view()),
+]
+
+urlpatterns += [
     path('add_event/',views.AddEvent.as_view()),
     path('events/', views.GetEvents.as_view()),
-    path('events/<slug:slug>/reserver', views.Reserver.as_view()),
-    path('post/<int:id>/like', views.Upvote.as_view())
+    path('events/<slug:slug>/reserver/', views.Reserver.as_view()),
+]
 
+urlpatterns += [
+    path('psychologist_register/', views.PsychologistRegister.as_view()),
+    path('psychologists/', views.PsychologistList.as_view())
+]
+
+urlpatterns += [
+    #path('articles/', views.ArticlesView.as_view())
+]
+
+urlpatterns += [
+    path('start_premium/', views.BecomePremium.as_view())
 ]

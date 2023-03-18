@@ -9,10 +9,12 @@ from django.contrib.auth import login, logout, get_user_model
 from .serializers import *
 from django.middleware.csrf import get_token
 from django.core.paginator import Paginator
-
+from .scrapper import WebScraper
 
 User = get_user_model()
 
+
+# ---------------------------- Base functions --------------------------- #
 def sendResponse(data, message):
     res = {
         'success': True,
@@ -27,9 +29,12 @@ def sendErrorMessage(message):
         'message': message
     }
     return JsonResponse(res, safe=False)
+#----------------------------------------------------------------------#
 
-# ------------------------- auth views --------------------------- #
 
+
+
+# --------------------------------- Auth views ------------------------------------- #
 
 class RegisterView(APIView):
     
@@ -62,7 +67,6 @@ class LoginView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request, format=None):
-        print(get_token(request))
         email = request.POST.get('email')
         password = request.POST.get('password')
         user = User.objects.get(email=email)
@@ -78,24 +82,16 @@ class LoginView(APIView):
         #return Response(None, status=status.HTTP_202_ACCEPTED)
 
 
-class ProfileView(generics.RetrieveAPIView):
-    
-    serializer_class = UserSerializer
-
-    def get_object(self):
-        return sendResponse(self.request.user, 'User data')
-        #return self.request.user
-
-
 class LogoutView(APIView):
-    
     def post(self, request, format=None):
         logout(request)
         return sendResponse(None, 'User logged out')
-        #return Response(None, status=status.HTTP_204_NO_CONTENT)
-#-------------------------------------------------------------------------#
+#----------------------------------------------------------------------------------#
 
-# --------------------------- Post views ---------------------------------#
+
+
+
+# ------------------------------------ Post views ------------------------------------#
 
 class PostsList(APIView):
     """
@@ -108,22 +104,38 @@ class PostsList(APIView):
             return sendResponse(serializer.data, 'All posts')
         except Exception as e:
             return sendErrorMessage(str(e))
+
+
+class PostDetails(APIView):
+    def get(self, request, id, format=None):
+        try:
+            post = Post.objects.get(pk=id)
+            serializer = PostSerializer(post)
+            return sendResponse(serializer.data, f'Post #{post.id}')
+        except Exception as e:
+            return sendErrorMessage(str(e))
+         
+            
         
 class CreatePost(APIView):
    def post(self,request,format=None):
     context= request.POST  
     title=context.get("title")
     content=context.get("content")
-    print(request.user)
+    photo=request.FILES.get('photo')
     user=request.user 
     #user=User.objects.get(id=userid)
-    post =Post.objects.create(title=title,content=content,user=user)
+    post =Post.objects.create(title=title,content=content,user=user, photo=photo)
 
     serilizer = PostSerializer(post)
-    print(serilizer)
     return sendResponse(serilizer.data,'the post')
 
-# -------------------------------------------------------------------------#
+# ---------------------------------------------------------------------------------------#
+
+
+
+
+
 
 # ------------------------- User views ----------------------------------- #
 class UsersList(APIView):
@@ -150,23 +162,26 @@ class UserDetails(APIView):
     
 class CompleteInfo(APIView):
     def post(self,request,format=None):
-        print(request)
         context= request.POST  
         first_name=context.get("first_name")
         last_name=context.get("last_name")
         gender=context.get("gender") 
-        usr=request.user 
+        usr=request.user
         addiction=context.get("addiction")
-        print(usr)
-        User.objects.filter(id=usr.id).update(first_name=first_name,last_name=last_name,gender=gender,addiction=addiction)
+        photo = request.FILES.get('photo')
+        User.objects.filter(id=usr.id).update(first_name=first_name,last_name=last_name,gender=gender,addiction=addiction, photo=photo)
         serilizer = UserSerializer(usr)
-        return sendResponse(serilizer.data,'the post')
+        return sendResponse(serilizer.data,f'Updated user #{usr.id} info')
         
 #-------------------------------------------------------------------------#
 
-# ----------------------- Consumption check function ---------------------#
 
-class ConsumptionCheck(APIView):
+
+
+
+# ------------------------- Consumption check function -------------------------#
+
+class StreakCheck(APIView):
     def get(self, request, format=None):
         try:
             current_user = request.user
@@ -175,9 +190,30 @@ class ConsumptionCheck(APIView):
             return sendResponse(last_login, 'last login of current user')
         except Exception as e:
             return sendErrorMessage(str(e))
+        
+class StreakUpdate(APIView):
+    def post(self, request, format=None):
+        try:
+            user = request.user
+            boolean = int(request.POST.get('response'))
+            if(boolean == 1):
+                user.streak += 1
+            else:
+                user.streak = 0
+            user.save()
+            serializer = UserSerializer(user)
+            return sendResponse(serializer.data, 'streak updated')
+        except Exception as e:
+            return sendErrorMessage(str(e))
             
+# ----------------------------------------------------------------------#
 
-# ------------------- Events views --------------------------#
+
+
+
+
+
+# ------------------------------ Events views ---------------------------------#
 class AddEvent(APIView):
     def post(self, request, format=None):
         try:
@@ -211,8 +247,15 @@ class Reserver(APIView):
         event.users.add(user)
         serializer = EventSerializer(event, many=True)
         return sendResponse(serializer.data,'place reservé')
+# ---------------------------------------------------------------------- #
+
+
+
+
+
 
 # ----------------------- Comments views -------------------- #
+
 class Comments(APIView):
     def get(self, request, format=None):
         try:
@@ -235,17 +278,118 @@ class AddComment(APIView):
             return sendResponse(serializer.data, 'New event added')
         except Exception as e:
             return sendErrorMessage(str(e))
+# ------------------------------------------------------------------------- #
+
+
+
+
+
         
-# ----------------------- Upvotes views ------------------------ #
+# ---------------------------- Upvotes views ---------------------------- #
 class Upvote(APIView):
     def post(self, request, id):
         try:
             post = Post.objects.get(pk=id)
+            user = request.user
+            serializer = PostSerializer(post)
+            print(serializer.data)
+            if(user.id in serializer.data['upvoters']):
+                post.upvote_count -= 1
+                post.upvoters.remove(user)
+                return sendResponse(serializer.data, 'Post unliked')
             post.upvote_count += 1
             post.save()
-            user = request.user
             post.upvoters.add(user)
-            serializer = PostSerializer(post)
             return sendResponse(serializer.data, 'Post liked')
         except Exception as e:
             return sendErrorMessage(str(e))
+# ----------------------------------------------------------------------- #        
+        
+        
+        
+        
+
+# ---------------------------- Psychologist views ------------------------------ #
+
+class PsychologistRegister(APIView):
+    permission_classes = (permissions.AllowAny,)
+    
+    def post(self, request):
+        try:
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            email = request.POST.get('email')
+            password = request.POST.get('password')
+            
+            if (not email) or (not password):
+                return sendErrorMessage('Email and password are required')
+            if(not first_name) or (not last_name):
+                return sendErrorMessage('Please enter your first and last names')
+            if(User.objects.filter(email=email).exists()):
+                return sendErrorMessage('Psychologist already exists with given email')
+            
+            user = Psychologist(email=email, password=password, first_name=first_name, last_name=last_name)
+            user.save()
+            serializer = PsychologistSerializer(user)
+            return sendResponse(serializer.data, 'Psychologist registered')
+        except Exception as e:
+            return sendErrorMessage(str(e))
+        
+class PsychologistList(APIView):
+    def get(self, request):
+        try:
+            psychologists = Psychologist.objects.all()
+            serializer = PsychologistSerializer(psychologists, many=True)
+            return sendResponse(serializer.data, 'All psychologists')
+        except Exception as e:
+            return sendErrorMessage(str(e))
+# ------------------------------------------------------------------------- #        
+        
+        
+        
+        
+        
+        
+        
+# ------------------------- Articles views -------------------------- #
+
+class ArticlesView(APIView):
+    def get(self, request):
+        articles = WebScraper('drugs')
+        return articles
+    
+    
+    
+# ---------------------------- myProgress views ------------------------ #
+
+class BecomePremium(APIView):
+    def post(self, request, format=None):
+        try:
+            cause = request.POST.get('cause_of_addiction')
+            frequency = request.POST.get('frequency_of_use')
+            psychologist = Psychologist.objects.get(pk=int(request.POST.get('psychologist_id')))
+            user = request.user
+            user.cause_of_addiction = cause
+            user.frequency_of_use = frequency
+            user.assigned_psychologist = psychologist
+            user.premium = True
+            user.save()
+            serializer = UserSerializer(user)
+            return sendResponse(serializer.data, 'User upgraded to premium')
+        except Exception as e:
+            return sendErrorMessage(str(e))
+# -------------------------------------------------------------------#        
+        
+        
+        
+        
+        
+# --------------------------- Admin views -------------------------- #
+#--------------------------------------------------------------------#
+
+
+
+#-------------------------- Psychologist views -----------------------#
+class AddTask(APIView):
+    def post(self, request):
+        pass
