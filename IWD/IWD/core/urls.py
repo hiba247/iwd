@@ -24,6 +24,7 @@ urlpatterns += [
 urlpatterns += [
     path('psychologist_register/', views.PsychologistRegister.as_view()),
     path('psychologists/', views.PsychologistList.as_view()),
+    path('psychologist_login/', views.PsychologistLogin.as_view()),
     path('add_task/', views.AddTask.as_view())
 ]
 
