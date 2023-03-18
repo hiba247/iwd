@@ -4,6 +4,7 @@ iwd repo
 
 This is the back-end of a the website FreeCovery built using **Django 4**. It is the solution proposed by our team, AfterHours, for the third sub-theme Acts of Grace, for WTM's IWD Hackathon.
 
+Our app offers a solution by providing a personalized approach to help individuals overcome addiction. Users can access posts from other individuals in recovery, creating a supportive community of individuals going through similar struggles. We also offer paid event organizations such as workshops, seminars, and meetings, facilitated by addiction specialists, counselors, and other experts who provide valuable insights and support to individuals looking to overcome addiction. For those seeking more personalized and tailored support, we offer a premium service where users can work directly with a specialist to develop a personalized program for recovery. This program includes one-on-one coaching,, and regular check-ins to ensure users stay on track towards recovery. In addition, our app offers daily challenges to help users stay engaged and focused on their recovery journey. Users can track their progress and earn rewards for completing challenges, helping to build a sense of accomplishment and motivation.
 
 
 ## Table of Contents 
