@@ -7,6 +7,15 @@
 #from selenium.webdriver.chrome.options import Options
 #import json
 
+"""
+The scrapper doesn't work perfectly and also requires a considerable number of packages thus we have commented
+out the imports to avoid any unnecessary or weird crashes in the website, and to not overload the dependencies
+"""
+
+"""
+This scrapper is used by the admin to scrape websites for articles concerning the main theme of the website
+- addiction -
+"""
 
 def checkIfContainsLink(element):
     if element.get_attribute("href") != None:

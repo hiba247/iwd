@@ -3,6 +3,9 @@ from rest_framework import serializers
 from .models import *
 User = get_user_model()
 
+"""
+Here are the serializers for the models
+"""
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
