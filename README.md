@@ -2,17 +2,22 @@
 iwd repo
 # FreeCovery
 
-This is the back-end of a website built using **Django 4**.
+This is the back-end of a the website FreeCovery built using **Django 4**. It is the solution proposed by our team, AfterHours, for the third sub-theme Acts of Grace, for WTM's IWD Hackathon.
 
 
 
 ## Table of Contents 
+- [Code structure_(#code-structure)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Run the application](#run-the-application)
 - [View the application](#view-the-application)
-- [Copyright and License](#copyright-and-license)
 
+## Code Structure
+
+The code is structured as follows:
+
+- 
 
 ## Prerequisites
 
@@ -30,7 +35,7 @@ git clone https://github.com/hiba247/iwd
 
 ### 2. Create a virtual environment
 
-From the **root** directory run:
+From the **root** directory (same one as the project) run:
 
 ```bash
 python -m venv venv
@@ -62,7 +67,7 @@ pip install -r requirements.txt
 
 ### 5. Run migrations
 
-From the **root** directory run:
+Make sure your current location looks something like **<your source>\iwd\IWD\IWD** and run the following commands:
 
 ```bash
 python manage.py makemigrations
@@ -80,7 +85,7 @@ python manage.py runserver
 Go to http://127.0.0.1:8000/ to view the application.
 Preferably, since it's only a back-end, you should use it with postman or django's browsable API.
 
-## Order of routes
+## Order of endpoints
 
 The database is empty as of now, so I advise you to start with the following endpoits so you can populate the database, and then access the other endpoints:
 
