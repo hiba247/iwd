@@ -79,7 +79,6 @@ class LoginView(APIView):
         else:
             return sendErrorMessage('No user found for given email')
         return sendResponse(get_token(request), 'User logged in, fetched CSRF Token')
-        #return Response(None, status=status.HTTP_202_ACCEPTED)
 
 
 class LogoutView(APIView):
@@ -335,6 +334,26 @@ class PsychologistRegister(APIView):
         except Exception as e:
             return sendErrorMessage(str(e))
         
+
+class PsychologistLogin(APIView):
+    
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, format=None):
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        psychologist = Psychologist.objects.get(email=email)
+        if user:
+            serializer = PsychologistSerializer(psychologist)
+            if(serializer.data['password'] == password):
+                login(request, psychologist)
+            else:
+                return sendErrorMessage('Wrong password')
+        else:
+            return sendErrorMessage('No user found for given email')
+        return sendResponse(get_token(request), 'User logged in, fetched CSRF Token')
+    
+
 class PsychologistList(APIView):
     def get(self, request):
         try:

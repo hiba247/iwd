@@ -64,7 +64,7 @@ class Comment(models.Model):
     
 class Event(models.Model):
     price=models.FloatField()
-    place=models.CharField(max_length=200)
+    place=models.CharField(max_length=100)
     num_places=models.IntegerField()
     description = models.TextField()
     date = models.DateField()
