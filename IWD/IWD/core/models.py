@@ -86,6 +86,7 @@ class Formation(models.Model):
     def __str__(self):
         return f'Formation {self.title}'
     
+    
 class Admin(models.Model):
     email = models.EmailField()
     first_name = models.CharField(max_length=100)
@@ -97,9 +98,18 @@ class Admin(models.Model):
     
 class Task(models.Model):
     description = models.CharField(max_length=100)
-    progress = models.IntegerField(default=0)
+    progress = models.FloatField(default=0)
     goal = models.IntegerField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     
     def __str__(self):
         return f'Task: {self.description}'
+    
+    
+class Article(models.Model):
+    title = models.CharField(max_length=100)
+    content = models.TextField()
+    added_by = models.ForeignKey(Admin, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return f'Article: {self.title}'

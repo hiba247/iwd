@@ -17,20 +17,24 @@ urlpatterns += [
 ]
 
 urlpatterns += [
-    path('add_event/',views.AddEvent.as_view()),
     path('events/', views.GetEvents.as_view()),
     path('events/<slug:slug>/reserver/', views.Reserver.as_view()),
 ]
 
 urlpatterns += [
     path('psychologist_register/', views.PsychologistRegister.as_view()),
-    path('psychologists/', views.PsychologistList.as_view())
+    path('psychologists/', views.PsychologistList.as_view()),
+    path('add_task/', views.AddTask.as_view())
 ]
 
 urlpatterns += [
-    #path('articles/', views.ArticlesView.as_view())
+    path('articles/', views.ArticlesView.as_view()),
+    path('add_article/', views.AddArticle.as_view()),
+    path('add_event/',views.AddEvent.as_view()),
 ]
 
 urlpatterns += [
-    path('start_premium/', views.BecomePremium.as_view())
+    path('start_premium/', views.BecomePremium.as_view()),
+    path('submit_task/', views.SubmitTask.as_view()),
+    path('my_tasks/', views.TasksList.as_view())
 ]

@@ -349,17 +349,6 @@ class PsychologistList(APIView):
         
         
         
-        
-        
-# ------------------------- Articles views -------------------------- #
-
-class ArticlesView(APIView):
-    def get(self, request):
-        articles = WebScraper('drugs')
-        return articles
-    
-    
-    
 # ---------------------------- myProgress views ------------------------ #
 
 class BecomePremium(APIView):
@@ -378,6 +367,37 @@ class BecomePremium(APIView):
             return sendResponse(serializer.data, 'User upgraded to premium')
         except Exception as e:
             return sendErrorMessage(str(e))
+        
+        
+class TasksList(APIView):
+    def get(self, request):
+        try:
+            user = request.user
+            tasks = Task.objects.filter(user=user)
+            serializer = TaskSerializer(tasks, many=True)
+            return sendResponse(serializer.data , f'Tasks of User #{user.id}')
+        except Exception as e:
+            return sendErrorMessage(str(e))
+    
+
+class SubmitTask(APIView):
+    def post(self, request, format=None):
+        try:
+            task = Task.objects.get(pk = int(request.POST.get('task_id')))
+            if(task.progress == 1):
+                serializer = TaskSerializer(task)
+                return sendResponse(serializer.data, 'Task completed, congratulations')
+            progress_value = task.progress + ( 1 / task.goal )
+            task.progress = round(progress_value, 2)
+            task.save()
+            serializer = TaskSerializer(task)
+            if(task.progress == 1):
+                serializer = TaskSerializer(task)
+                return sendResponse(serializer.data, 'Task completed, congratulations')
+            return sendResponse(serializer.data, 'Progress updated')
+        except Exception as e:
+            return sendErrorMessage(str(e))
+    
 # -------------------------------------------------------------------#        
         
         
@@ -385,6 +405,35 @@ class BecomePremium(APIView):
         
         
 # --------------------------- Admin views -------------------------- #
+
+class ArticlesView(APIView):
+    def get(self, request):
+        try:
+            articles = Article.objects.all()
+            serializer = ArticleSerializer(articles, many=True)
+            return sendResponse(serializer.data, 'All articles')
+        except Exception as e:
+            return sendErrorMessage(str(e))
+        
+        
+class AddArticle(APIView):
+    def post(self, request):
+        try:
+            option = request.POST.get('option')
+            if(option==1):
+                admin = request.user
+                title = request.POST.get('title')
+                content = request.POST.get('content')
+                added_by = admin        
+                new_article = Article(title=title, content=content, added_by=added_by)
+                serializer = ArticleSerializer(new_article)
+                return sendResponse(serializer.data, 'Article added')
+            elif(option==2):
+                return sendErrorMessage('The scrapper is down currently, we apologize for this inconvenience')
+        except Exception as e:
+            return sendErrorMessage(str(e))
+        
+        
 #--------------------------------------------------------------------#
 
 
@@ -392,4 +441,14 @@ class BecomePremium(APIView):
 #-------------------------- Psychologist views -----------------------#
 class AddTask(APIView):
     def post(self, request):
-        pass
+        try:
+            description = request.POST.get('description')
+            goal = int(request.POST.get('goal'))
+            user = User.objects.get(pk = int(request.POST.get('user_id')))
+            new_task = Task(description=description, goal=goal, user=user)
+            new_task.save()
+            serializer = TaskSerializer(new_task)
+            return sendResponse(serializer.data, f'Task added to user #{user.id}')
+        except Exception as e:
+            return sendErrorMessage(str(e))
+        
